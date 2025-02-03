@@ -15,6 +15,9 @@ public interface UserService {
 
 
 
+    Optional<UserDetail> getUserDetailsByUserId(UUID userId);
+    void createUserDetails(UserDetailUpdateRequest request);
+    boolean updateUserDetails(UserDetailUpdateRequest request);
 
 
 
@@ -23,15 +26,17 @@ public interface UserService {
 	void signup(UserSignupRequest userSignupRequest);
 
 	void signupAndAssignRole(UserSignupRequest userSignupRequest, String roleName);
-    boolean isUserExist(String username);
+    boolean isUserExist(String userName);
 
     UUID getUserIdByUsername(String usernameOrEmail);
 
-     boolean updateUserDetails(UserDetailUpdateRequest request);
 
      Optional<UserDetail> getUserDetailsById(UUID userId);
 
-    void createUserDetails(UserDetailUpdateRequest request);
+     boolean deleteUserDetails(UUID userId);
+    void createUserDetails(UUID userId, UserDetailUpdateRequest request);
+
+    boolean updateUserDetails(UUID userId, UserDetailUpdateRequest request);
 
 
 }

@@ -38,7 +38,7 @@ private UUID id;
     @Column(name = "previous_experience", length = 500)
     private String previousExperience;
 
-    @Column(name = "phone_number", length = 15)
+    @Column(name = "phone_number", length = 25)
     private String phoneNumber;
 
     @Column(name = "date_of_birth")
@@ -59,7 +59,7 @@ private UUID id;
     @Column(name = "emergency_contact_name", length = 100)
     private String emergencyContactName;
 
-    @Column(name = "emergency_contact_phone", length = 15)
+    @Column(name = "emergency_contact_phone", length = 16)
     private String emergencyContactPhone;
 
     @Column(name = "created_time", updatable = false)
