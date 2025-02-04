@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 import com.project.po3d.dto.request.UserDetailUpdateRequest;
-import com.project.po3d.entity.UserDetail;
+import com.project.po3d.dto.response.UserDetailResponse;
 import com.project.po3d.business.abstracts.UserService;
 import lombok.AllArgsConstructor;
 
@@ -40,12 +40,14 @@ public class UserController {
         return new ResponseEntity<>("User details created successfully", HttpStatus.CREATED);
     }
     
-      @GetMapping("/details/{userId}")
-    public ResponseEntity<?> getUserDetails(@PathVariable UUID userId) {
-        Optional<UserDetail> userDetails = userService.getUserDetailsByUserId(userId);
-        return userDetails.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
+@GetMapping("/details/{userId}")
+public ResponseEntity<?> getUserDetails(@PathVariable UUID userId) {
+    Optional<UserDetailResponse> userDetails = userService.getUserDetailsByUserId(userId); // Güncellendi
+
+    return userDetails.map(ResponseEntity::ok)
+                      .orElseGet(() -> ResponseEntity.notFound().build());
+}
+
 
    
     @PutMapping("/details")

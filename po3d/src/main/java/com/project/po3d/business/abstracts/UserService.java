@@ -6,6 +6,7 @@ import java.util.UUID;
 import com.project.po3d.dto.auth.request.UserSigninRequest;
 import com.project.po3d.dto.auth.request.UserSignupRequest;
 import com.project.po3d.dto.request.UserDetailUpdateRequest;
+import com.project.po3d.dto.response.UserDetailResponse;
 import com.project.po3d.entity.UserDetail;
 
 public interface UserService {
@@ -15,11 +16,10 @@ public interface UserService {
 
 
 
-    Optional<UserDetail> getUserDetailsByUserId(UUID userId);
     void createUserDetails(UserDetailUpdateRequest request);
     boolean updateUserDetails(UserDetailUpdateRequest request);
 
-
+Optional<UserDetailResponse> getUserDetailsByUserId(UUID userId);
 
     String login(UserSigninRequest userSigninRequest);
 

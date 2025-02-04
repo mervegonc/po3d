@@ -6,8 +6,9 @@
     import java.util.Optional;
     import java.util.Set;
     import java.util.UUID;
+import java.util.stream.Collectors;
 
-    import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.security.authentication.AuthenticationManager;
     import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
     import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,7 +19,8 @@
     import com.project.po3d.dto.auth.request.UserSigninRequest;
     import com.project.po3d.dto.auth.request.UserSignupRequest;
     import com.project.po3d.dto.request.UserDetailUpdateRequest;
-    import com.project.po3d.entity.Role;
+import com.project.po3d.dto.response.UserDetailResponse;
+import com.project.po3d.entity.Role;
     import com.project.po3d.entity.User;
     import com.project.po3d.entity.UserDetail;
     import com.project.po3d.jwt.JwtTokenProvider;
@@ -187,12 +189,6 @@
 
 
 
-
-        @Override
-        public Optional<UserDetail> getUserDetailsByUserId(UUID userId) {
-            return userDetailRepository.findByUserId(userId);
-        }
-
     
         public void createUserDetails(UUID userId, UserDetailUpdateRequest request) {
             User user = userRepository.findById(userId)
@@ -257,5 +253,32 @@
         
 
 
+@Override
+public Optional<UserDetailResponse> getUserDetailsByUserId(UUID userId) {
+    Optional<UserDetail> userDetailOpt = userDetailRepository.findByUserId(userId);
+    
+    if (userDetailOpt.isEmpty()) {
+        return Optional.empty();
+    }
+
+    UserDetail userDetail = userDetailOpt.get();
+    User user = userDetail.getUser();
+
+    Set<String> roleNames = user.getRoles().stream()
+                                .map(Role::getName)
+                                .collect(Collectors.toSet());
+
+    UserDetailResponse response = new UserDetailResponse(
+            user.getId(),
+            user.getUsername(),
+            user.getEmail(),
+            userDetail.getPhoneNumber(),
+            userDetail.getEducation(),
+            userDetail.getHomeAddress(),
+            roleNames
+    );
+
+    return Optional.of(response);
+}
 
     }

@@ -155,6 +155,36 @@ public void deleteProduct(UUID id) {
 
 
 
+@Override
+public List<ProductResponse> getAllProducts() {
+    return productRepository.findAll()
+            .stream()
+            .map(product -> new ProductResponse(
+                    product.getId(),
+                    product.getName(),
+                    product.getDescription(),
+                    product.getCategory(),
+                    product.getPrice(),
+                    product.getStock(),
+                    product.getImages()
+            ))
+            .collect(Collectors.toList());
+}
+
+@Override
+public ProductResponse getProductById(UUID id) {
+    Product product = productRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Ürün bulunamadı."));
+    return new ProductResponse(
+            product.getId(),
+            product.getName(),
+            product.getDescription(),
+            product.getCategory(),
+            product.getPrice(),
+            product.getStock(),
+            product.getImages()
+    );
+}
 
 
 
