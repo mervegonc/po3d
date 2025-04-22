@@ -37,6 +37,8 @@ Optional<UserDetailResponse> getUserDetailsByUserId(UUID userId);
     void createUserDetails(UUID userId, UserDetailUpdateRequest request);
 
     boolean updateUserDetails(UUID userId, UserDetailUpdateRequest request);
+    void createPasswordResetToken(String email);
+    void resetPassword(String token, String newPassword);
 
 
 }

@@ -13,6 +13,8 @@ import com.project.po3d.dto.auth.request.UserSigninRequest;
 import com.project.po3d.dto.auth.request.UserSignupRequest;
 import com.project.po3d.dto.auth.response.UserSigninResponse;
 import com.project.po3d.dto.auth.response.UserSignupResponse;
+import com.project.po3d.dto.password.ResetPasswordRequest;
+import com.project.po3d.dto.password.ResetTokenRequest;
 import com.project.po3d.business.abstracts.UserService;
 
 import lombok.AllArgsConstructor;
@@ -54,5 +56,16 @@ public class AuthController {
 		return new ResponseEntity<>(userSignupResponse, HttpStatus.CREATED);
 	}
 
+@PostMapping("/request-reset")
+public ResponseEntity<String> requestReset(@RequestBody ResetTokenRequest request) {
+    userService.createPasswordResetToken(request.getEmail());
+    return ResponseEntity.ok("Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.");
+}
+
+@PostMapping("/reset-password")
+public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest request) {
+    userService.resetPassword(request.getToken(), request.getNewPassword());
+    return ResponseEntity.ok("Şifreniz başarıyla güncellendi.");
+}
 
 }

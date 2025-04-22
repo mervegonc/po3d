@@ -4,18 +4,18 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
 import java.util.UUID;
-
+// ProductWithFirstImageResponse.java
 @Data
-@AllArgsConstructor // Tüm alanları içeren constructor oluşturur
-@NoArgsConstructor  // Boş constructor oluşturur
-public class ProductResponse {
+@AllArgsConstructor
+@NoArgsConstructor
+public class ProductWithFirstImageResponse {
     private UUID id;
     private String name;
     private String description;
     private Double price;
     private Integer stock;
-    private String categoryName; // Kategori ismini döndüreceğiz
-    private List<String> fileUrls;
+    private String categoryName;
+    private String firstImageUrl; // İlk görselin URL'si
 }
+

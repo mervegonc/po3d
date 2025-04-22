@@ -7,15 +7,16 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
 
-@Data
 @Entity
+@Table(name = "products")
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "products")
 public class Product {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(nullable = false, length = 100)
@@ -30,26 +31,23 @@ public class Product {
     @Column(nullable = false)
     private Integer stock;
 
-    @Column(nullable = false, length = 50)
-    private String category;
-
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at", updatable = false, nullable = false)
     private Timestamp createdAt;
 
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", nullable = false)
     private Timestamp updatedAt;
 
-    @ElementCollection
-    @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"))
-    @Column(name = "image_url")
-    private List<String> images; // Resim URL listesi
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
 
-    @Column(name = "video_url")
-    private String videoUrl; // Ürüne video ekleme (isteğe bağlı)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductAttachment> attachments;
 
     @PrePersist
     protected void onCreate() {
         this.createdAt = new Timestamp(System.currentTimeMillis());
+        this.updatedAt = this.createdAt;
     }
 
     @PreUpdate

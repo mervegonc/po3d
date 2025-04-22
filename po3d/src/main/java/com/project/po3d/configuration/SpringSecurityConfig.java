@@ -115,6 +115,8 @@ public class SpringSecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS izinlerini buraya ekledik
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests((authorize) -> {
+                authorize.requestMatchers(HttpMethod.GET, "/api/products/image/**").permitAll();
+
                 authorize.requestMatchers("/api/auth/**").permitAll();
                 authorize.requestMatchers("/api/products/upload").permitAll();
                 authorize.requestMatchers(HttpMethod.GET, "/api/**").permitAll();

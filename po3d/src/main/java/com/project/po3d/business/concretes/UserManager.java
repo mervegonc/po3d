@@ -20,14 +20,17 @@ import org.springframework.beans.factory.annotation.Autowired;
     import com.project.po3d.dto.auth.request.UserSignupRequest;
     import com.project.po3d.dto.request.UserDetailUpdateRequest;
 import com.project.po3d.dto.response.UserDetailResponse;
+import com.project.po3d.entity.PasswordResetToken;
 import com.project.po3d.entity.Role;
     import com.project.po3d.entity.User;
     import com.project.po3d.entity.UserDetail;
     import com.project.po3d.jwt.JwtTokenProvider;
-    import com.project.po3d.repository.RoleRepository;
+import com.project.po3d.repository.PasswordResetTokenRepository;
+import com.project.po3d.repository.RoleRepository;
     import com.project.po3d.repository.UserDetailRepository;
     import com.project.po3d.repository.UserRepository;
-    import com.project.po3d.business.abstracts.UserService;
+import com.project.po3d.business.abstracts.EmailService;
+import com.project.po3d.business.abstracts.UserService;
 
     import org.springframework.security.core.Authentication;
 
@@ -41,15 +44,19 @@ import com.project.po3d.entity.Role;
         private final JwtTokenProvider jwtTokenProvider;
         private final RoleRepository roleRepository;
         private final UserDetailRepository userDetailRepository;
+private final PasswordResetTokenRepository passwordResetTokenRepository;
+private final EmailService emailService;
 
         
-    public UserManager(UserDetailRepository userDetailRepository,RoleRepository roleRepository, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider) {
+    public UserManager(UserDetailRepository userDetailRepository,EmailService emailService,RoleRepository roleRepository,PasswordResetTokenRepository passwordResetTokenRepository, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider) {
         
             this.passwordEncoder = passwordEncoder;
             this.authenticationManager = authenticationManager;
             this.jwtTokenProvider = jwtTokenProvider;
             this.roleRepository = roleRepository;
             this.userDetailRepository =userDetailRepository;
+            this.emailService = emailService;
+            this.passwordResetTokenRepository = passwordResetTokenRepository;
             
         }
 
@@ -280,5 +287,59 @@ public Optional<UserDetailResponse> getUserDetailsByUserId(UUID userId) {
 
     return Optional.of(response);
 }
+
+
+@Override
+public void createPasswordResetToken(String email) {
+    // 🔍 1. Kullanıcıyı email ile bul
+    User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new UsernameNotFoundException("Email adresi sistemde kayıtlı değil."));
+
+    // 🔑 2. Token oluştur (UUID ile benzersiz)
+    String token = UUID.randomUUID().toString();
+
+    // ⏰ 3. Token geçerlilik süresi (örneğin 15 dakika)
+    Timestamp expiresAt = new Timestamp(System.currentTimeMillis() + 15 * 60 * 1000); // 15 dk
+
+    // 💾 4. Token kaydet (PasswordResetToken entity’sine)
+    PasswordResetToken resetToken = new PasswordResetToken(null, user.getEmail(),token,user, expiresAt);
+    passwordResetTokenRepository.save(resetToken);
+
+    // 🔗 5. Şifre sıfırlama bağlantısı oluştur
+    String resetLink = "http://localhost:3000/reset-password?token=" + token;
+
+    // 📧 6. E-postayı gönder (EmailService aracılığıyla)
+    emailService.send(
+        user.getEmail(),
+        "Şifre Sıfırlama Bağlantısı",
+        "Merhaba " + user.getUsername() + ",\n\n" +
+        "Şifrenizi sıfırlamak için aşağıdaki bağlantıya tıklayın:\n\n" +
+        resetLink + "\n\n" +
+        "Bağlantı 15 dakika geçerlidir.\n\n" +
+        "İyi günler dileriz."
+    );
+}
+
+
+
+@Override
+public void resetPassword(String token, String newPassword) {
+    PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token)
+            .orElseThrow(() -> new IllegalArgumentException("Geçersiz veya süresi dolmuş token."));
+
+    if (resetToken.getExpiresAt().before(new Timestamp(System.currentTimeMillis()))) {
+        throw new IllegalArgumentException("Token süresi dolmuş.");
+    }
+
+    User user = resetToken.getUser();
+
+    user.setPassword(passwordEncoder.encode(newPassword));
+    userRepository.save(user);
+
+    // Token tek kullanımlık olduğu için siliniyor
+    passwordResetTokenRepository.delete(resetToken);
+}
+
+
 
     }
